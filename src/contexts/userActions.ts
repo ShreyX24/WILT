@@ -1,4 +1,4 @@
-const apiUrl: string = "http://localhost:3001/api"
+const apiUrl: string = "https://wilt-api.vercel.app/api"
 
 interface Completed {
   sub: string | number;
