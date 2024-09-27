@@ -1,4 +1,3 @@
-import React from "react";
 import { useTheme } from "../contexts/themeContext";
 import { TaskLayout } from "../ui/home/taskLayout/taskLayout";
 import { Sidebar } from "../ui/home/sidebar/sidebar";

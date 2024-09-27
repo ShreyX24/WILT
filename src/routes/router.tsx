@@ -4,7 +4,6 @@ import { ErrorPage } from "../pages/errorPage";
 import { SidebarCalendar } from "../components/sidebarMobile/calendar";
 import { AccSettings } from "../components/taskLayout/accSettings/accSettings";
 import { MailSub } from "../components/taskLayout/mailSub/mailSub";
-import { Test } from "../test/test";
 import { Login } from "../pages/login";
 import { Register } from "../pages/register";
 import { SidebarMobile } from "../ui/home/sidebar/sidebarMobile";
@@ -44,10 +43,6 @@ const routes: RouteObject[] = [
   {
     path: "/signUp",
     element: <Register />,
-  },
-  {
-    path: "/test",
-    element: <Test />,
   },
 ];
 
