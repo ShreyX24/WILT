@@ -13,7 +13,7 @@ export const Sidebar = () => {
       <SectionHistory />
 
       {/* Calendar Section */}
-      <SectionCalendar />
+      {/* <SectionCalendar /> */}
     </div>
   );
 };

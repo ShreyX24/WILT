@@ -159,7 +159,19 @@ export const HistoryTopic = () => {
   if (!userTasks) {
     return (
       <div className="flex items-center justify-center h-[40vh]">
-        Loading...
+        {theme ? (
+          <img
+            src="/assets/animated_icons/writer_loading_light.gif"
+            alt=""
+            width="62"
+          />
+        ) : (
+          <img
+            src="/assets/animated_icons/writer_loading.gif"
+            alt=""
+            width="62"
+          />
+        )}
       </div>
     );
   }
@@ -167,7 +179,7 @@ export const HistoryTopic = () => {
   return (
     <div className="flex">
       <HistorySorter setSortType={setSortType} />
-      <div className="h-[calc(100vh-140px)] px-4 w-[400px] md:h-[550px] flex flex-col gap-2 overflow-auto justify-start">
+      <div className="h-[calc(100vh-140px)] px-4 w-[400px]  flex flex-col gap-2 overflow-auto justify-start">
         {Object.entries(groupedTasks).map(([date, completedDay], index) => (
           <div
             key={index}
