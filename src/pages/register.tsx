@@ -1,45 +1,48 @@
 import { useTheme } from "../contexts/themeContext";
 import { useNavigate } from "react-router-dom";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import { useGoogleAuth } from "../contexts/googleAuthContext";
+import { jwtDecode } from "jwt-decode";
+import { useState } from "react";
+
+interface UserInfo {
+  sub: string;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  email: string;
+  email_verified: boolean;
+}
 
 export const Register = () => {
   const { themeOptions, theme } = useTheme();
   const navigate = useNavigate();
-  const { setIsLoggedIn, setGoogleUserInfo } = useGoogleAuth();
+  const { login } = useGoogleAuth();
+  const [googleLoginError, setGoogleLoginError] = useState(false);
 
-  //Loging in with google and extracting user info
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      // console.log(tokenResponse);
+  const handleLoginWithGoogle = (token: string | undefined) => {
+    if (token) {
+      const decoded = jwtDecode(token) as any;
+      // console.log(decoded);
+      const userInfo: UserInfo = {
+        sub: decoded.sub,
+        name: decoded.name,
+        given_name: decoded.given_name,
+        family_name: decoded.family_name,
+        picture: decoded.picture,
+        email: decoded.email,
+        email_verified: decoded.email_verified,
+      };
+      // console.log(userInfo);
 
-      try {
-        const userInfoResponse = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.access_token}`,
-            },
-          }
-        );
+      login(userInfo);
 
-        if (userInfoResponse.ok) {
-          const userInfo = await userInfoResponse.json();
-          console.log("User Info:", userInfo);
+      const username: string = userInfo.name;
 
-          setIsLoggedIn(true); // Set login state to true
-          setGoogleUserInfo(userInfo);
-          navigate("/"); // Redirect to home page
-          // Here you can handle the user info, e.g., save it to your app's state or send it to your backend
-        } else {
-          console.error("Failed to fetch user info");
-        }
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
-    },
-    onError: (error) => console.error("Login Failed:", error),
-  });
+      navigate(`/u/${username.replace(" ", "")}`); // Redirect to home page
+    }
+  };
 
   return (
     <div
@@ -69,76 +72,18 @@ export const Register = () => {
             color: themeOptions.formTextColor,
           }}
         >
-          {/* <form
-            className="flex flex-col items-center justify-center p-10 gap-4"
-            onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
-              e.preventDefault();
-              const form = e.currentTarget;
-              const username = form.username.value;
-              const email = form.email.value;
-              console.log("Username:", username);
-              console.log("Email:", email);
-            }}
-          >
-            <label className="text-sm flex flex-col">
-              Username
-              <input
-                type="text"
-                name="username"
-                className="text-lg rounded-md p-1 outline-none"
-                style={{
-                  backgroundColor: themeOptions.formInputBgColor,
-                  color: themeOptions.formInputTextColor,
-                }}
-              />
-            </label>
-            <label className="text-sm flex flex-col">
-              Email
-              <input
-                type="text"
-                name="email"
-                className="text-lg rounded-md p-1 outline-none"
-                style={{
-                  backgroundColor: themeOptions.formInputBgColor,
-                  color: themeOptions.formInputTextColor,
-                }}
-              />
-            </label>
-            <label className="text-sm flex flex-col">
-              Password
-              <input
-                type="password"
-                name="email"
-                className="text-lg rounded-md p-1 outline-none"
-                style={{
-                  backgroundColor: themeOptions.formInputBgColor,
-                  color: themeOptions.formInputTextColor,
-                }}
-              />
-            </label>
-            <button
-              className="flex items-center justify-center gap-1 text-xl font-semibold rounded-md p-2"
-              type="submit"
-              style={{
-                backgroundColor: themeOptions.formSendBgColor,
-              }}
-            >
-              Register
-            </button>
-          </form> */}
-
           {/* SignUp with google btn*/}
-          <button
-            className="flex items-center gap-1 p-2 px-4 rounded-md"
-            onClick={() => googleLogin()}
-            style={{
-              backgroundColor: themeOptions.backgroundColor,
-              color: themeOptions.color,
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              // console.log(credentialResponse);
+              handleLoginWithGoogle(credentialResponse.credential);
             }}
-          >
-            <img src="/assets/icons/google.png" alt="" width="24" />
-            <span className="font-semibold">Sign up with Google</span>
-          </button>
+            onError={() => {
+              console.log("Login Failed");
+              setGoogleLoginError(true);
+            }}
+            useOneTap
+          />
 
           {/* Divert to login */}
           <div className=" flex gap-2 items-center text-sm">
@@ -153,6 +98,14 @@ export const Register = () => {
               Already A User?
             </button>
           </div>
+
+          {googleLoginError ? (
+            <span className="text-red-600 text-center">
+              An error occured while logging in. Please try again.
+            </span>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
 

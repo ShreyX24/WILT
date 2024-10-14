@@ -29,7 +29,7 @@ export const Login = () => {
   const handleLoginWithGoogle = (token: string | undefined) => {
     if (token) {
       const decoded = jwtDecode(token) as any;
-      console.log(decoded);
+      // console.log(decoded);
       const userInfo: UserInfo = {
         sub: decoded.sub,
         name: decoded.name,
@@ -39,7 +39,7 @@ export const Login = () => {
         email: decoded.email,
         email_verified: decoded.email_verified,
       };
-      console.log(userInfo);
+      // console.log(userInfo);
 
       login(userInfo);
 
