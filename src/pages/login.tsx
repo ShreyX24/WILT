@@ -95,8 +95,7 @@ export const Login = () => {
           <div className="flex gap-2 items-center text-sm">
             {/*Login aa Test User */}
             <button
-              id="testUserBtn"
-              className="p-1 px-2 rounded-md"
+              className="p-1 px-2 rounded-md font-bold"
               style={{
                 backgroundColor: themeOptions.formTextBgColor,
                 color: themeOptions.formSendTextColor,
