@@ -1,8 +1,9 @@
 import { useTheme } from "../contexts/themeContext";
 import { useNavigate } from "react-router-dom";
-import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
 import { useGoogleAuth } from "../contexts/googleAuthContext";
 import { jwtDecode } from "jwt-decode";
+import { useState } from "react";
 
 interface UserInfo {
   sub: string;
@@ -18,6 +19,7 @@ export const Login = () => {
   const { themeOptions, theme } = useTheme();
   const { login, loginWithTest } = useGoogleAuth();
   const navigate = useNavigate();
+  const [googleLoginError, setGoogleLoginError] = useState(false);
 
   const handleLoginAsTestUser = () => {
     loginWithTest();
@@ -46,41 +48,6 @@ export const Login = () => {
       navigate(`/u/${username.replace(" ", "")}`); // Redirect to home page
     }
   };
-
-  // //Loging in with google and extracting user info
-  // const googleLogin = useGoogleLogin({
-  //   onSuccess: async (tokenResponse) => {
-  //     // console.log(tokenResponse);
-
-  //     try {
-  //       const userInfoResponse = await fetch(
-  //         "https://www.googleapis.com/oauth2/v3/userinfo",
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${tokenResponse.access_token}`,
-  //           },
-  //         }
-  //       );
-
-  //       if (userInfoResponse.ok) {
-  //         const userInfo = await userInfoResponse.json();
-  //         // console.log("User Info:", userInfo);
-
-  //         login(userInfo);
-
-  //         const username: string = userInfo.name;
-
-  //         navigate(`/u/${username.replace(" ", "")}`); // Redirect to home page
-  //         // Here you can handle the user info, e.g., save it to your app's state or send it to your backend
-  //       } else {
-  //         console.error("Failed to fetch user info");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user info:", error);
-  //     }
-  //   },
-  //   onError: (error) => console.error("Login Failed:", error),
-  // });
 
   return (
     <div
@@ -111,26 +78,15 @@ export const Login = () => {
           }}
         >
           {/* Login with google btn*/}
-          {/* <button
-            className="flex items-center gap-1 p-2 px-4 rounded-md"
-            onClick={() => googleLogin()}
-            style={{
-              backgroundColor: themeOptions.backgroundColor,
-              color: themeOptions.color,
-            }}
-          >
-            
-            <img src="/assets/icons/google.png" alt="" width="24" />
-            <span className="font-semibold">Sign in with Google</span>
-          </button> */}
 
           <GoogleLogin
             onSuccess={(credentialResponse) => {
-              console.log(credentialResponse);
+              // console.log(credentialResponse);
               handleLoginWithGoogle(credentialResponse.credential);
             }}
             onError={() => {
               console.log("Login Failed");
+              setGoogleLoginError(true);
             }}
             useOneTap
           />
@@ -162,6 +118,14 @@ export const Login = () => {
               Not A User?
             </button>
           </div>
+
+          {googleLoginError ? (
+            <span className="text-red-600 text-center">
+              An error occured while logging in. Please try again.
+            </span>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
 
