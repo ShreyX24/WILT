@@ -217,19 +217,11 @@ export const HistoryTopic = () => {
                           className=""
                           onClick={() => handleDeleteClick(task.id)}
                         >
-                          {theme ? (
-                            <img
-                              src="/assets/icons/delete.png"
-                              alt=""
-                              width="16"
-                            />
-                          ) : (
-                            <img
-                              src="/assets/icons/delete_light.png"
-                              alt=""
-                              width="16"
-                            />
-                          )}
+                          <img
+                            src="/assets/icons/delete.png"
+                            alt=""
+                            width="16"
+                          />
                         </button>
                       ) : (
                         <div className="flex items-center gap-2">

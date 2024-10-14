@@ -1,7 +1,18 @@
 import { useTheme } from "../contexts/themeContext";
 import { useNavigate } from "react-router-dom";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin, useGoogleLogin } from "@react-oauth/google";
 import { useGoogleAuth } from "../contexts/googleAuthContext";
+import { jwtDecode } from "jwt-decode";
+
+interface UserInfo {
+  sub: string;
+  name: string;
+  given_name: string;
+  family_name: string;
+  picture: string;
+  email: string;
+  email_verified: boolean;
+}
 
 export const Login = () => {
   const { themeOptions, theme } = useTheme();
@@ -13,40 +24,63 @@ export const Login = () => {
     navigate("/u/TestUser");
   };
 
-  //Loging in with google and extracting user info
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      // console.log(tokenResponse);
+  const handleLoginWithGoogle = (token: string | undefined) => {
+    if (token) {
+      const decoded = jwtDecode(token) as any;
+      console.log(decoded);
+      const userInfo: UserInfo = {
+        sub: decoded.sub,
+        name: decoded.name,
+        given_name: decoded.given_name,
+        family_name: decoded.family_name,
+        picture: decoded.picture,
+        email: decoded.email,
+        email_verified: decoded.email_verified,
+      };
+      console.log(userInfo);
 
-      try {
-        const userInfoResponse = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${tokenResponse.access_token}`,
-            },
-          }
-        );
+      login(userInfo);
 
-        if (userInfoResponse.ok) {
-          const userInfo = await userInfoResponse.json();
-          // console.log("User Info:", userInfo);
+      const username: string = userInfo.name;
 
-          login(userInfo);
+      navigate(`/u/${username.replace(" ", "")}`); // Redirect to home page
+    }
+  };
 
-          const username: string = userInfo.name;
+  // //Loging in with google and extracting user info
+  // const googleLogin = useGoogleLogin({
+  //   onSuccess: async (tokenResponse) => {
+  //     // console.log(tokenResponse);
 
-          navigate(`/u/${username.replace(" ", "")}`); // Redirect to home page
-          // Here you can handle the user info, e.g., save it to your app's state or send it to your backend
-        } else {
-          console.error("Failed to fetch user info");
-        }
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
-    },
-    onError: (error) => console.error("Login Failed:", error),
-  });
+  //     try {
+  //       const userInfoResponse = await fetch(
+  //         "https://www.googleapis.com/oauth2/v3/userinfo",
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${tokenResponse.access_token}`,
+  //           },
+  //         }
+  //       );
+
+  //       if (userInfoResponse.ok) {
+  //         const userInfo = await userInfoResponse.json();
+  //         // console.log("User Info:", userInfo);
+
+  //         login(userInfo);
+
+  //         const username: string = userInfo.name;
+
+  //         navigate(`/u/${username.replace(" ", "")}`); // Redirect to home page
+  //         // Here you can handle the user info, e.g., save it to your app's state or send it to your backend
+  //       } else {
+  //         console.error("Failed to fetch user info");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user info:", error);
+  //     }
+  //   },
+  //   onError: (error) => console.error("Login Failed:", error),
+  // });
 
   return (
     <div
@@ -77,7 +111,7 @@ export const Login = () => {
           }}
         >
           {/* Login with google btn*/}
-          <button
+          {/* <button
             className="flex items-center gap-1 p-2 px-4 rounded-md"
             onClick={() => googleLogin()}
             style={{
@@ -85,9 +119,21 @@ export const Login = () => {
               color: themeOptions.color,
             }}
           >
+            
             <img src="/assets/icons/google.png" alt="" width="24" />
             <span className="font-semibold">Sign in with Google</span>
-          </button>
+          </button> */}
+
+          <GoogleLogin
+            onSuccess={(credentialResponse) => {
+              console.log(credentialResponse);
+              handleLoginWithGoogle(credentialResponse.credential);
+            }}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+            useOneTap
+          />
 
           {/* other btns */}
           <div className="flex gap-2 items-center text-sm">
